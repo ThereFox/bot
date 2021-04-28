@@ -1,17 +1,13 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-  </head>
-  <body>
-    
 <?php
+
+$data = file_get_contents('php://input');
+$data = json_decode($data, true);
+
 if (empty($data['message']['chat']['id'])) {
 	exit();
 }
 
-define('TOKEN', '1727319575:AAHi8f1hNrRXZDjRLTskuRvd5S8QF-7n5qM');
+define('TOKEN', '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11');
 
 // Функция вызова методов API.
 function sendTelegram($method, $response)
@@ -26,6 +22,9 @@ function sendTelegram($method, $response)
 
 	return $res;
 }
+ 
+
+
 // Ответ на текстовые сообщения.
 if (!empty($data['message']['text'])) {
 	$text = $data['message']['text'];
@@ -41,6 +40,4 @@ if (!empty($data['message']['text'])) {
 
 		exit();
 	}
-?>
-  </body>
-</html>
+}
