@@ -1,37 +1,35 @@
 <?php
-    include('vendor/autoload.php'); //библиотека
-    use Telegram\Bot\Api;
+if (empty($data['message']['chat']['id'])) {
+	exit();
+}
 
-    $telegram = new Api('1727319575:AAHi8f1hNrRXZDjRLTskuRvd5S8QF-7n5qM'); //токен, полученный у BotFather
-    $result = $telegram -> getWebhookUpdates(); //Передаем в переменную $result полную информацию о сообщении пользователя
+define('TOKEN', '1727319575:AAHi8f1hNrRXZDjRLTskuRvd5S8QF-7n5qM');
 
-    $text = $result["message"]["text"]; //Текст сообщения
-    $chat_id = $result["message"]["chat"]["id"]; //Уникальный идентификатор пользователя
-    $name = $result["message"]["from"]["username"]; //Юзернейм пользователя
-    $keyboard = [["Сайты"],["Картинка"],["Расписание"]]; //Клавиатура
+// Функция вызова методов API.
+function sendTelegram($method, $response)
+{
+	$ch = curl_init('https://api.telegram.org/bot' . TOKEN . '/' . $method);
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $response);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_HEADER, false);
+	$res = curl_exec($ch);
+	curl_close($ch);
 
-    if($text){
-         if ($text == "/start") {
-            $reply = "Привет {$name}!";
-            $reply_markup = $telegram->replyKeyboardMarkup([ 'keyboard' => $keyboard, 'resize_keyboard' => true, 'one_time_keyboard' => false ]);
-            $telegram->sendMessage([ 'chat_id' => $chat_id, 'text' => $reply, 'reply_markup' => $reply_markup ]);
-        }
-        elseif ($text == "/help")
-        {
-            $reply = "Что ты хочешь узнать?";
-            $telegram->sendMessage([ 'chat_id' => $chat_id, 'text' => $reply ]);
-        }
-        /*elseif ($text == "Сайты")
-        {
-            $url = "https://68.media.tumblr.com/6d830b4f2c455f9cb6cd4ebe5011d2b8/tumblr_oj49kevkUz1v4bb1no1_500.jpg";
-            $telegram->sendPhoto([ 'chat_id' => $chat_id, 'photo' => $url, 'caption' => "Описание." ]);
-        }*/
-        else
-        {
-        	$reply = "По запросу \"<b>".$text."</b>\" ничего не найдено.";
-        	$telegram->sendMessage([ 'chat_id' => $chat_id, 'parse_mode'=> 'HTML', 'text' => $reply ]);
-        }
-    }else{
-    	$telegram->sendMessage([ 'chat_id' => $chat_id, 'text' => "Отправьте текстовое сообщение." ]);
-    }
-?>
+	return $res;
+}
+// Ответ на текстовые сообщения.
+if (!empty($data['message']['text'])) {
+	$text = $data['message']['text'];
+
+	if (mb_stripos($text, 'привет') !== false) {
+		sendTelegram(
+			'sendMessage',
+			array(
+				'chat_id' => $data['message']['chat']['id'],
+				'text' => 'Хай!'
+			)
+		);
+
+		exit();
+	}
